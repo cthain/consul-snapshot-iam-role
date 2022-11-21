@@ -1,6 +1,10 @@
-# Snapshot agent IAM Assume Role Auth CCE
+# Consul snapshot agent IAM assume role
 
-This project sets up a Consul [Enterprise] snapshot agent that saves snapshots to AWS S3 using an assumed role
+This project:
+- Deploys an EKS cluster on AWS.
+- Installs Consul enterprise on the k8s cluster.
+- Configures the `consul-snapshot-agent` service account to get IAM credentials via an IAM role.
+- Configures the `consul-snapshot-agent` to save snapshots in S3 using the IAM creds from the service account.
 
 ## Build and publish Consul
 
