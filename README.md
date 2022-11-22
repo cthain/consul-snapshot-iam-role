@@ -1,10 +1,10 @@
 # Consul snapshot agent IAM assume role
 
-This project:
-- Deploys an EKS cluster on AWS.
-- Installs Consul enterprise on the k8s cluster.
-- Configures the `consul-snapshot-agent` service account to get IAM credentials via an IAM role.
-- Configures the `consul-snapshot-agent` to save snapshots in S3 using the IAM creds from the service account.
+This project details the steps to:
+- Deploy an EKS cluster on AWS.
+- Install Consul enterprise on the k8s cluster.
+- Configure the `consul-server` service account to get IAM credentials via an IAM role.
+- Configure the `consul-snapshot-agent` to save snapshots in S3 using the IAM creds from the service account.
 
 ## Build and publish Consul
 
@@ -13,7 +13,7 @@ During development/test publish a Consul enterprise dev image to a private ECR:
 ```shell
 export AWS_REGION="us-west-2"
 export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text) ; echo "AWS_ACCOUNT_ID = $AWS_ACCOUNT_ID"
-consul-enterprise$ make dev-docker
+git clone https://github.com/hashicorp/consul-enterprise.git && cd consul-enterprise && make dev-docker
 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 aws ecr create-repository --repository-name consul-enterprise --region ${AWS_REGION}
 docker tag consul-dev:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/consul-enterprise:dev
@@ -26,7 +26,7 @@ docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/consul-enterpr
 
 ```shell
 terraform init
-tf apply -auto-approve -var name=$USER -var "consul_image=${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/consul-enterprise:dev" -var "consul_license_path=/home/${USER}/.ssh/consul.license"
+terraform apply -auto-approve -var name=$USER -var "consul_image=${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/consul-enterprise:dev" -var "consul_license_path=/home/${USER}/.ssh/consul.license"
 ```
 
 ### Set up environment
@@ -36,7 +36,7 @@ export EKS_CLUSTER_ID=$(terraform output -json | jq -r '.eks_cluster_id.value')
 export OIDC_ID=$(aws eks describe-cluster --region ${AWS_REGION} --name ${EKS_CLUSTER_ID} --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
 export OIDC_PROVIDER=$(aws eks describe-cluster --region ${AWS_REGION} --name ${EKS_CLUSTER_ID} --query "cluster.identity.oidc.issuer" --output text | sed -e "s/^https:\/\///"); echo "OIDC_PROVIDER = $OIDC_PROVIDER"
 export NAMESPACE="default"
-export SVC_ACCOUNT=consul-snapshot-agent
+export SVC_ACCOUNT=consul-server
 export ASSUME_ROLE_POLICY=consul-snapshot-assume-role
 export ROLE_NAME=consul-snapshot-agent
 export POLICY_NAME=manage-consul-snapshots-s3

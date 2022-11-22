@@ -31,3 +31,4 @@ override.tf.json
 
 consul-snapshot-assume-role.json
 manage-consul-snapshots-s3.json
+values.yaml

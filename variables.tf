@@ -58,12 +58,6 @@ variable "s3_bucket_name" {
 
 # Consul
 
-variable "consul_chart_version" {
-  description = "Version of the Helm chart used to install Consul."
-  type        = string
-  default     = "0.49.0"
-}
-
 variable "consul_datacenter" {
   description = "The name of the Consul datacenter."
   type        = string
